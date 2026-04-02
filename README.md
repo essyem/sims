@@ -1,6 +1,18 @@
 # SIMS
 
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white)
+![Deployment](https://img.shields.io/badge/Deployment-Ready-2EA44F?logo=githubactions&logoColor=white)
+
 Sales & Invoice Management System for quotation-to-cash workflows, customer statements, receipt allocation, expense tracking, and profit reporting.
+
+## Visual Preview
+
+![SIMS Product Overview](docs/assets/sims-product-overview.svg)
+
+![SIMS Finance Workflow](docs/assets/sims-finance-workflow.svg)
+
+These repository preview graphics are included now so the project has immediate visuals on GitHub. They can be replaced later with real product screenshots or recorded GIFs from the running application.
 
 ## Overview
 

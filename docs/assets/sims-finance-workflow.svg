@@ -1,0 +1,42 @@
+<svg width="1200" height="540" viewBox="0 0 1200 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="540" fill="#F4F7FB"/>
+  <text x="70" y="82" fill="#10233D" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">SIMS Finance Workflow</text>
+  <text x="70" y="116" fill="#4B627B" font-family="Arial, Helvetica, sans-serif" font-size="20">From quotation to collection, statement generation, and profitability reporting</text>
+
+  <rect x="70" y="180" width="170" height="110" rx="22" fill="#1E88E5"/>
+  <text x="101" y="228" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Quotation</text>
+  <text x="96" y="258" fill="#EAF4FF" font-family="Arial, Helvetica, sans-serif" font-size="16">Create and approve</text>
+
+  <rect x="290" y="180" width="170" height="110" rx="22" fill="#00A86B"/>
+  <text x="336" y="228" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Invoice</text>
+  <text x="324" y="258" fill="#EAFBF4" font-family="Arial, Helvetica, sans-serif" font-size="16">Track due and paid</text>
+
+  <rect x="510" y="180" width="170" height="110" rx="22" fill="#F39C12"/>
+  <text x="554" y="228" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Receipt</text>
+  <text x="542" y="258" fill="#FFF5E5" font-family="Arial, Helvetica, sans-serif" font-size="16">Capture payment</text>
+
+  <rect x="730" y="180" width="170" height="110" rx="22" fill="#8E44AD"/>
+  <text x="751" y="228" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Allocation</text>
+  <text x="748" y="258" fill="#F6EBFF" font-family="Arial, Helvetica, sans-serif" font-size="16">Split across invoices</text>
+
+  <rect x="950" y="180" width="170" height="110" rx="22" fill="#E74C3C"/>
+  <text x="976" y="228" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Statement</text>
+  <text x="980" y="258" fill="#FFECEA" font-family="Arial, Helvetica, sans-serif" font-size="16">Generate and email</text>
+
+  <path d="M240 235H286" stroke="#90A4B8" stroke-width="8" stroke-linecap="round"/>
+  <path d="M460 235H506" stroke="#90A4B8" stroke-width="8" stroke-linecap="round"/>
+  <path d="M680 235H726" stroke="#90A4B8" stroke-width="8" stroke-linecap="round"/>
+  <path d="M900 235H946" stroke="#90A4B8" stroke-width="8" stroke-linecap="round"/>
+
+  <rect x="70" y="352" width="500" height="122" rx="24" fill="#FFFFFF" stroke="#D7E1EC"/>
+  <text x="100" y="394" fill="#10233D" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Profit and Loss Inputs</text>
+  <text x="100" y="428" fill="#4B627B" font-family="Arial, Helvetica, sans-serif" font-size="18">Invoices + Receipts + Expenses = revenue, cash flow, and profitability insight</text>
+  <text x="100" y="456" fill="#4B627B" font-family="Arial, Helvetica, sans-serif" font-size="18">Includes cash basis, accrual basis, expense categories, and date-range filters</text>
+
+  <rect x="600" y="352" width="520" height="122" rx="24" fill="#10233D"/>
+  <text x="630" y="394" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Outputs</text>
+  <text x="630" y="426" fill="#BFD1E4" font-family="Arial, Helvetica, sans-serif" font-size="18">Customer aging</text>
+  <text x="630" y="452" fill="#BFD1E4" font-family="Arial, Helvetica, sans-serif" font-size="18">Monthly statement runs</text>
+  <text x="840" y="426" fill="#BFD1E4" font-family="Arial, Helvetica, sans-serif" font-size="18">Top debtors</text>
+  <text x="840" y="452" fill="#BFD1E4" font-family="Arial, Helvetica, sans-serif" font-size="18">Net profit reporting</text>
+</svg>
