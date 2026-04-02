@@ -1,0 +1,26 @@
+✅ COMPLETED - PDF Template Updates (Dec 17, 2025)
+
+All changes implemented:
+
+1. ✅ Logo - Centered without border, company name in single line (English + Arabic)
+2. ✅ Reduced header and body sizes matching reference template
+3. ✅ Color/B&W print support (@page A4, 0.7cm margin)
+4. ✅ Bank details section added:
+   - A/C Name: Al-Mutakamelah for Wedding & Events W.L.L
+   - Bank: Commercial Bank of Qatar
+   - A/C Number: [To be added]
+   - IBAN No: QA[To be added]
+5. ✅ Authorized signature section at end of content (right side)
+   - Added to Invoice PDF
+   - Added to Quotation PDF
+   - Added to Receipt PDF (if exists)
+6. ✅ Font sizes reduced to 11-12px matching reference
+7. ✅ Table styling with borders (0.5px solid #ddd)
+8. ✅ Footer fixed at bottom of page
+9. ✅ Compact layout with reduced margins and spacing
+
+Templates updated:
+- /root/invsys/templates/sales/invoice_pdf.html
+- /root/invsys/templates/sales/quotation_pdf.html
+
+Service restarted and running successfully.

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation {{ quotation.quotation_number }}</title>
+    <style>
+        /* Font declarations will be handled by WeasyPrint CSS */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Noto Sans Arabic', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+        
+        .quotation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #059669;
+            padding-bottom: 20px;
+        }
+        
+        .header-left {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .header-center {
+            flex: 0 0 120px;
+            text-align: center;
+        }
+        
+        .header-right {
+            flex: 1;
+            text-align: right;
+        }
+        
+        .company-logo {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .company-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .company-name-english {
+            font-size: 20px;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 5px;
+        }
+        
+        .company-name-arabic {
+            font-size: 20px;
+            font-weight: 700;
+            color: #059669;
+            direction: rtl;
+            font-family: 'Noto Sans Arabic', Arial, sans-serif;
+            margin-bottom: 5px;
+        }
+        
+        .company-details {
+            color: #6b7280;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+        
+        .quotation-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .quotation-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 5px;
+        }
+        
+        .quotation-title h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #059669;
+            font-family: 'Noto Sans Arabic', Arial, sans-serif;
+        }
+        
+        .event-details {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+        }
+        
+        .event-details h4 {
+            color: #166534;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .event-details-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .event-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .event-item .label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .event-item .value {
+            font-weight: 600;
+            color: #14532d;
+            font-size: 14px;
+        }
+        
+        .quotation-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        
+        .quotation-details, .customer-details {
+            flex: 1;
+        }
+        
+        .quotation-details {
+            margin-right: 40px;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            width: 140px;
+            color: #374151;
+        }
+        
+        .detail-value {
+            color: #6b7280;
+        }
+        
+        .customer-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 15px;
+        }
+        
+        .customer-address {
+            color: #6b7280;
+            line-height: 1.8;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 40px 0;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .items-table th {
+            background: #059669;
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .items-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        
+        .items-table .text-right {
+            text-align: right;
+        }
+        
+        .items-table .text-center {
+            text-align: center;
+        }
+        
+        .arabic-text {
+            direction: rtl;
+            font-family: 'Noto Sans Arabic', Arial, sans-serif;
+            text-align: right;
+        }
+        
+        .totals {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .totals-table {
+            width: 400px;
+            border-collapse: collapse;
+        }
+        
+        .totals-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .totals-table .label {
+            font-weight: 600;
+            color: #374151;
+            text-align: right;
+            width: 60%;
+        }
+        
+        .totals-table .value {
+            text-align: right;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .totals-table .total-row {
+            background: #f9fafb;
+            border-top: 2px solid #059669;
+            border-bottom: 2px solid #059669;
+        }
+        
+        .totals-table .total-row td {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 16px;
+        }
+        
+        .notes {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f9fafb;
+            border-left: 4px solid #059669;
+        }
+        
+        .notes h4 {
+            color: #059669;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .notes p {
+            color: #6b7280;
+            line-height: 1.8;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-draft {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .status-sent {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .status-accepted {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-expired {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .validity-note {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 4px;
+        }
+        
+        .validity-note p {
+            color: #92400e;
+            font-size: 13px;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+            border-top: 1px solid #e5e7eb;
+            padding: 15px 40px;
+            background: white;
+        }
+        
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .quotation-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quotation-container">
+        <!-- Header: English Left | Logo Center | Arabic Right -->
+        <div class="header">
+            <div class="header-left">
+                <div class="company-name-english">Al-Mutakamelah<br>for Wedding & Events</div>
+                <div class="company-details">
+                    Qatar<br>
+                    info@almutakamelah.com<br>
+                    +974 1234 5678
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="company-logo">
+                    <img src="{{ logo_path }}" alt="Company Logo">
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="company-name-arabic">المتكاملة للأفراح والمناسبات</div>
+                <div class="company-details" style="direction: rtl; text-align: right;">
+                    قطر<br>
+                    info@almutakamelah.com<br>
+                    +974 1234 5678
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quotation Title -->
+        <div class="quotation-title">
+            <h1>QUOTATION <span style="margin-left: 20px;">عرض سعر</span></h1>
+            <div class="status-badge status-{{ quotation.status }}">{{ quotation.get_status_display }}</div>
+        </div>
+
+        <!-- Event Details -->
+        {% if quotation.event_start_date or quotation.event_location %}
+        <div class="event-details">
+            <h4><i class="fas fa-calendar-alt"></i> Event Details / تفاصيل المناسبة</h4>
+            <div class="event-details-grid">
+                {% if quotation.event_start_date %}
+                <div class="event-item">
+                    <div class="label">Event Start / بداية المناسبة</div>
+                    <div class="value">{{ quotation.event_start_date|date:"F d, Y" }}</div>
+                </div>
+                {% endif %}
+                {% if quotation.event_end_date %}
+                <div class="event-item">
+                    <div class="label">Event End / نهاية المناسبة</div>
+                    <div class="value">{{ quotation.event_end_date|date:"F d, Y" }}</div>
+                </div>
+                {% endif %}
+                {% if quotation.event_location %}
+                <div class="event-item">
+                    <div class="label">Location / المكان</div>
+                    <div class="value arabic-text">{{ quotation.event_location }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quotation & Customer Details -->
+        <div class="quotation-meta">
+            <div class="quotation-details">
+                <div class="detail-row">
+                    <span class="detail-label">Quotation Number:</span>
+                    <span class="detail-value">{{ quotation.quotation_number }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Quotation Date:</span>
+                    <span class="detail-value">{{ quotation.quotation_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Valid Until:</span>
+                    <span class="detail-value">{{ quotation.valid_until|date:"F d, Y" }}</span>
+                </div>
+            </div>
+
+            <div class="customer-details">
+                <h3>Quote For:</h3>
+                <div class="customer-address">
+                    <strong>{{ quotation.customer.name }}</strong><br>
+                    {% if quotation.customer.company %}{{ quotation.customer.company }}<br>{% endif %}
+                    {{ quotation.customer.phone }}<br>
+                    {% if quotation.customer.email %}{{ quotation.customer.email }}<br>{% endif %}
+                    {% if quotation.customer.address %}{{ quotation.customer.address }}{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 50%">Description</th>
+                    <th class="text-center" style="width: 15%">Quantity</th>
+                    <th class="text-right" style="width: 20%">Unit Price (QAR)</th>
+                    <th class="text-right" style="width: 15%">Total (QAR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in quotation.items.all %}
+                <tr>
+                    <td>
+                        <div class="arabic-text">{{ item.description }}</div>
+                    </td>
+                    <td class="text-center">{{ item.quantity|floatformat:0 }}</td>
+                    <td class="text-right">{{ item.unit_price|floatformat:2 }}</td>
+                    <td class="text-right">{{ item.line_total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals">
+            <table class="totals-table">
+                <tr>
+                    <td class="label">Subtotal:</td>
+                    <td class="value">{{ quotation.subtotal|floatformat:2 }} QAR</td>
+                </tr>
+                <tr>
+                    <td class="label">Tax ({{ quotation.tax_rate }}%):</td>
+                    <td class="value">{{ quotation.tax_amount|floatformat:2 }} QAR</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="label">Total Amount:</td>
+                    <td class="value">{{ quotation.total_amount|floatformat:2 }} QAR</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Notes -->
+        {% if quotation.notes %}
+        <div class="notes">
+            <h4>Notes:</h4>
+            <p>
+                <div class="arabic-text">{{ quotation.notes }}</div>
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Validity Note -->
+        <div class="validity-note">
+            <p><strong>Note:</strong> This quotation is valid until {{ quotation.valid_until|date:"F d, Y" }}. Prices and availability are subject to change after this date.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Al Furousiya Street, Zone 55, Street 280, Bldg 322, First Floor, Office No. 3</strong></p>
+            <p>Thank you for your interest! | شكراً لاهتمامكم</p>
+        </div>
+    </div>
+</body>
+</html>

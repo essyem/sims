@@ -1,0 +1,91 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}Statement Runs{% endblock %}
+{% block header %}Statement Runs{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'finance:customer-statement' %}" class="btn btn-outline-primary">
+    <i class="fas fa-file-invoice-dollar me-2"></i>Open Statements
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">Generate New Run</h5></div>
+    <div class="card-body">
+        <form method="post" action="{% url 'finance:statement-run-generate' %}" class="row g-3 align-items-end">
+            {% csrf_token %}
+            <div class="col-md-3">
+                <label class="form-label">Period Start</label>
+                <input type="date" class="form-control" name="period_start" value="{{ default_start|date:'Y-m-d' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Period End</label>
+                <input type="date" class="form-control" name="period_end" value="{{ default_end|date:'Y-m-d' }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Customer (optional)</label>
+                <select name="customer" class="form-select">
+                    <option value="">All customers</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.pk }}">{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">Generate</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h5 class="mb-0">History</h5></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Period</th>
+                        <th>Closing</th>
+                        <th>Status</th>
+                        <th>Emailed</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in runs %}
+                    <tr>
+                        <td>{{ run.customer.name }}</td>
+                        <td>{{ run.period_start }} to {{ run.period_end }}</td>
+                        <td>QAR {{ run.closing_balance|floatformat:2 }}</td>
+                        <td>
+                            <span class="badge bg-{% if run.status == 'emailed' %}success{% else %}secondary{% endif %}">{{ run.get_status_display }}</span>
+                        </td>
+                        <td>
+                            {% if run.emailed_at %}
+                            {{ run.emailed_at|date:'Y-m-d H:i' }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'finance:statement-run-mark-emailed' run.pk %}" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <input type="email" name="emailed_to" class="form-control form-control-sm" placeholder="email" value="{{ run.emailed_to|default:run.customer.email }}">
+                                <button type="submit" class="btn btn-sm btn-outline-success">Mark Emailed</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No statement runs yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

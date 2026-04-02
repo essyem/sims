@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sales Management System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Preconnect and Cairo font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Noto Sans Arabic', 'DejaVu Sans', Arial, sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            padding: 12px 20px;
+            margin: 2px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card-stats:hover {
+            transform: translateY(-5px);
+        }
+        .card-stats.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .card-stats.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .card-stats.danger {
+            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+        }
+        .card-stats.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        /* Cairo font utility classes */
+        .cairo {
+            font-family: 'Cairo', sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+        }
+        .cairo-200 { font-weight: 200; }
+        .cairo-300 { font-weight: 300; }
+        .cairo-400 { font-weight: 400; }
+        .cairo-600 { font-weight: 600; }
+        .cairo-700 { font-weight: 700; }
+        .cairo-800 { font-weight: 800; }
+        .cairo-900 { font-weight: 900; }
+        /* Table description fix: remove inner-box styling from elements INSIDE the cell only */
+        .table td.cairo {
+            /* keep cell display and padding so column alignment stays intact */
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+        /* target any elements inside the description cell (remove form-like visuals) */
+        .table td.cairo * , .table td .cairo, .table td .cairo * {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            display: inline !important;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .pdf-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 15px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            color: white;
+        }
+        .print-btn {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 15px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.4);
+            color: white;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .sidebar-brand {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar-brand h5 {
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-brand">
+                        <h5 class="text-white mb-2">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Sales System
+                        </h5>
+                        {% if user.is_authenticated %}
+                            <small class="text-white-50">Welcome, {{ user.username }}</small>
+                        {% endif %}
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'customer' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'customer-list' %}">
+                                <i class="fas fa-users me-2"></i>Customers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'quotation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'quotation-list' %}">
+                                <i class="fas fa-file-alt me-2"></i>Quotations
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'invoice' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'invoice-list' %}">
+                                <i class="fas fa-file-invoice me-2"></i>Invoices
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'invoice-create-enhanced' %}active{% endif %}" href="{% url 'invoice-create-enhanced' %}">
+                                <i class="fas fa-plus-circle me-2"></i>Create Invoice+
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'receipt' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'receipt-list' %}">
+                                <i class="fas fa-receipt me-2"></i>Receipts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.namespace == 'finance' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'finance:dashboard' %}">
+                                <i class="fas fa-wallet me-2"></i>Finance
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.namespace == 'finance' and 'statement' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'finance:customer-statement' %}">
+                                <i class="fas fa-file-invoice-dollar me-2"></i>Statements
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.namespace == 'finance' and request.resolver_match.url_name == 'statement-run-list' %}active{% endif %}" href="{% url 'finance:statement-run-list' %}">
+                                <i class="fas fa-calendar-check me-2"></i>Statement Runs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.namespace == 'finance' and request.resolver_match.url_name == 'profit-loss' %}active{% endif %}" href="{% url 'finance:profit-loss' %}">
+                                <i class="fas fa-chart-area me-2"></i>P&L
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'analytics' %}">
+                                <i class="fas fa-chart-pie me-2"></i>Analytics
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-10 ms-sm-auto main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">{% block header %}Dashboard{% endblock %}</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            {% block header_buttons %}{% endblock %}
+                        </div>
+                        {% if user.is_authenticated %}
+                            <div class="btn-group">
+                                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-cog me-2"></i>Admin
+                                </a>
+                                <a href="{% url 'logout' %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Content -->
+                <div class="container-fluid px-4">
+                    {% block content %}{% endblock %}
+                </div>
+                
+                <!-- Footer -->
+                <footer class="footer mt-auto py-2 border-top text-center" style="font-size: 0.75rem; background-color: #f8f9fa;">
+                    <div class="container-fluid px-4">
+                        <div class="text-muted">
+                            <i class="fas fa-rocket text-primary"></i> <strong>TrendzApps</strong> - Complete Business Suite | <i class="fas fa-envelope text-secondary"></i> <a href="mailto:hello@trendzapps.com" class="text-decoration-none">hello@trendzapps.com</a> | <i class="fas fa-map-marker-alt text-secondary"></i> Church Road, Essex CO7 0QT, UK
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-handshake text-info"></i> <strong>Affiliated with:</strong> <span class="text-primary">Trendz T&C</span> • <span class="text-info">Infinify D&S</span> (Qatar)
+                        </div>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        // Print functionality
+        function printDocument() {
+            window.print();
+        }
+        
+        // Smooth animations
+        $(document).ready(function() {
+            $('.card').hover(
+                function() { $(this).addClass('shadow-lg'); },
+                function() { $(this).removeClass('shadow-lg'); }
+            );
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

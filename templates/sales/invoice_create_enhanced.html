@@ -1,0 +1,579 @@
+{% extends 'sales/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if object %}Edit Invoice{% else %}New Invoice{% endif %} - Sales Management{% endblock %}
+{% block header %}{% if object %}Edit Invoice{% else %}New Invoice{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-gradient">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-invoice me-2"></i>
+                    {% if object %}Edit Invoice: {{ object.invoice_number }}{% else %}Create New Invoice{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="invoiceForm">
+                    {% csrf_token %}
+                    
+                    <!-- Customer Selection -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <label class="form-label">Customer *</label>
+                            <select name="customer" class="form-select" id="customerSelect" required>
+                                <option value="">Select a customer...</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}" 
+                                        data-name="{{ customer.name }}"
+                                        data-email="{{ customer.email }}"
+                                        data-phone="{{ customer.phone }}"
+                                        data-company="{{ customer.company }}"
+                                        data-address="{{ customer.address }}"
+                                        {% if form.customer.value == customer.id %}selected{% endif %}>
+                                    {{ customer.name }} - {{ customer.phone }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#customerModal">
+                                    <i class="fas fa-plus me-1"></i>Add New Customer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Preview -->
+                    <div id="customerPreview" class="alert alert-info d-none mb-4">
+                        <h6><i class="fas fa-user me-2"></i>Customer Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Name:</strong> <span id="previewName"></span></p>
+                                <p class="mb-1"><strong>Email:</strong> <span id="previewEmail"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Phone:</strong> <span id="previewPhone"></span></p>
+                                <p class="mb-1"><strong>Company:</strong> <span id="previewCompany"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Invoice Date *</label>
+                            <input type="date" name="invoice_date" class="form-control" value="{{ today }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Due Date *</label>
+                            <input type="date" name="due_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Payment Method</label>
+                            <select name="payment_method" class="form-select">
+                                <option value="">Select payment method...</option>
+                                <option value="cash">Cash</option>
+                                <option value="card">Credit/Debit Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="check">Check</option>
+                                <option value="online">Online Payment</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tax Rate (%)</label>
+                            <input type="number" name="tax_rate" class="form-control" step="0.01" min="0" max="100" value="0.00">
+                        </div>
+                    </div>
+
+                    <!-- Event Details Section -->
+                    <div class="card mb-4 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-calendar-alt me-2"></i>Event Details (تفاصيل المناسبة)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label class="form-label">Event Start Date (تاريخ البداية)</label>
+                                    <input type="date" name="event_start_date" class="form-control" id="eventStartDate">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Event End Date (تاريخ النهاية)</label>
+                                    <input type="date" name="event_end_date" class="form-control" id="eventEndDate">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Event Location (مكان المناسبة)</label>
+                                    <input type="text" name="event_location" class="form-control" id="eventLocation" placeholder="Venue / Hall name...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discount -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label">Discount</label>
+                            <div class="input-group">
+                                <select class="form-select" style="max-width: 140px;" id="discountType">
+                                    <option value="percentage">Percentage (%)</option>
+                                    <option value="amount">Fixed Amount</option>
+                                </select>
+                                <input type="number" name="discount_percentage" class="form-control" step="0.01" min="0" max="100" value="{{ form.discount_percentage.value|default:0 }}" id="discountPercent">
+                                <input type="number" name="discount_amount_input" class="form-control" step="0.01" min="0" value="0.00" id="discountAmountInput" style="display: none;">
+                                <span class="input-group-text" id="discountUnit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="discount_amount" id="discountAmount" value="{{ form.discount_amount.value|default:0 }}">
+                    <input type="hidden" name="tax_rate" value="0.00">
+
+                    <!-- Items Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list me-2"></i>Invoice Items
+                                <button type="button" class="btn btn-primary btn-sm float-end" id="addItemBtn">
+                                    <i class="fas fa-plus me-1"></i>Add Item
+                                </button>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="itemsContainer">
+                                <!-- Items will be added here -->
+                            </div>
+                            
+                            <!-- Add Item Form -->
+                            <div class="row mb-3" id="newItemForm" style="display: none;">
+                                <div class="col-md-5">
+                                    <label class="form-label">Item/Service Description</label>
+                                    <input type="text" class="form-control" id="itemDescription" placeholder="Enter description or search existing items...">
+                                    <div id="itemSuggestions" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto;"></div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="itemQuantity" step="0.01" min="0.01" value="1">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Unit Price (QAR)</label>
+                                    <input type="number" class="form-control" id="itemPrice" step="0.01" min="0">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Line Total</label>
+                                    <input type="number" class="form-control" id="itemTotal" readonly>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div>
+                                        <button type="button" class="btn btn-success btn-sm" id="addItemToList">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="cancelAddItem">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Items Table -->
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="itemsTable">
+                                    <thead>
+                                        <tr>
+                                            <th width="50%">Description</th>
+                                            <th width="15%" class="text-center">Quantity</th>
+                                            <th width="15%" class="text-end">Unit Price (QAR)</th>
+                                            <th width="15%" class="text-end">Line Total (QAR)</th>
+                                            <th width="5%" class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemsTableBody">
+                                        <!-- Items will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Totals Summary -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" class="form-control" rows="4" placeholder="Additional notes or terms..."></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Invoice Summary</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Subtotal:</span>
+                                        <span id="summarySubtotal">0.00 QAR</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Discount:</span>
+                                        <span id="summaryDiscount">0.00 QAR</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Tax:</span>
+                                        <span id="summaryTax">0.00 QAR</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total:</span>
+                                        <span id="summaryTotal">0.00 QAR</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'invoice-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>{% if object %}Update{% else %}Create{% endif %} Invoice
+                            </button>
+                            {% if object %}
+                                <a href="{% url 'invoice-pdf' object.pk %}" class="btn pdf-btn" target="_blank">
+                                    <i class="fas fa-file-pdf me-2"></i>Download PDF
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="customerForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone *</label>
+                        <input type="text" class="form-control" name="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Company</label>
+                        <input type="text" class="form-control" name="company">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" name="address" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveCustomer">Save Customer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let itemIndex = 0;
+    let items = [];
+    
+    // Existing items from database (for search suggestions)
+    const existingItems = {{ existing_items|safe }};
+    
+    // Item form elements
+    const addItemBtn = document.getElementById('addItemBtn');
+    const newItemForm = document.getElementById('newItemForm');
+    const addItemToList = document.getElementById('addItemToList');
+    const cancelAddItem = document.getElementById('cancelAddItem');
+    
+    // Show/hide item form
+    addItemBtn.addEventListener('click', function() {
+        newItemForm.style.display = 'block';
+        document.getElementById('itemDescription').focus();
+    });
+    
+    cancelAddItem.addEventListener('click', function() {
+        newItemForm.style.display = 'none';
+        clearItemForm();
+    });
+    
+    // Customer selection handler
+    const customerSelect = document.getElementById('customerSelect');
+    const customerPreview = document.getElementById('customerPreview');
+    
+    customerSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            document.getElementById('previewName').textContent = selectedOption.dataset.name || '';
+            document.getElementById('previewEmail').textContent = selectedOption.dataset.email || '';
+            document.getElementById('previewPhone').textContent = selectedOption.dataset.phone || '';
+            document.getElementById('previewCompany').textContent = selectedOption.dataset.company || '';
+            customerPreview.classList.remove('d-none');
+        } else {
+            customerPreview.classList.add('d-none');
+        }
+    });
+    
+    // Discount type toggle
+    const discountType = document.getElementById('discountType');
+    const discountPercent = document.getElementById('discountPercent');
+    const discountAmountInput = document.getElementById('discountAmountInput');
+    const discountUnit = document.getElementById('discountUnit');
+    
+    discountType.addEventListener('change', function() {
+        if (this.value === 'percentage') {
+            discountPercent.style.display = 'block';
+            discountAmountInput.style.display = 'none';
+            discountAmountInput.value = '0.00';
+            discountUnit.textContent = '%';
+        } else {
+            discountPercent.style.display = 'none';
+            discountAmountInput.style.display = 'block';
+            discountPercent.value = '0.00';
+            discountUnit.textContent = 'QAR';
+        }
+        calculateTotals();
+    });
+
+    // Item search functionality
+    const itemDescription = document.getElementById('itemDescription');
+    const itemSuggestions = document.getElementById('itemSuggestions');
+    
+    itemDescription.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        if (query.length < 2) {
+            itemSuggestions.style.display = 'none';
+            return;
+        }
+        
+        const matches = existingItems.filter(item => 
+            item.description.toLowerCase().includes(query)
+        );
+        
+        if (matches.length > 0) {
+            itemSuggestions.innerHTML = matches.map((item, index) => `
+                <button type="button" class="dropdown-item" data-item-index="${index}" data-action="select-item">
+                    ${item.description} - ${item.unit_price} QAR
+                </button>
+            `).join('');
+            
+            // Add event listeners to the buttons
+            itemSuggestions.querySelectorAll('[data-action="select-item"]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-item-index'));
+                    const item = matches[index];
+                    selectItem(item.description, item.unit_price);
+                });
+            });
+            
+            itemSuggestions.style.display = 'block';
+        } else {
+            itemSuggestions.style.display = 'none';
+        }
+    });
+
+    // Calculate line total
+    const itemQuantity = document.getElementById('itemQuantity');
+    const itemPrice = document.getElementById('itemPrice');
+    const itemTotal = document.getElementById('itemTotal');
+    
+    function calculateLineTotal() {
+        const quantity = parseFloat(itemQuantity.value) || 0;
+        const price = parseFloat(itemPrice.value) || 0;
+        itemTotal.value = (quantity * price).toFixed(2);
+    }
+    
+    itemQuantity.addEventListener('input', calculateLineTotal);
+    itemPrice.addEventListener('input', calculateLineTotal);
+
+    // Add item to list
+    addItemToList.addEventListener('click', function() {
+        const description = itemDescription.value.trim();
+        const quantity = parseFloat(itemQuantity.value);
+        const price = parseFloat(itemPrice.value);
+        const total = parseFloat(itemTotal.value);
+        
+        if (!description || quantity <= 0 || price <= 0) {
+            alert('Please fill in all required fields with valid values.');
+            return;
+        }
+        
+        items.push({
+            id: itemIndex++,
+            description: description,
+            quantity: quantity,
+            unit_price: price,
+            line_total: total
+        });
+        
+        updateItemsTable();
+        clearItemForm();
+        newItemForm.style.display = 'none';
+        calculateTotals();
+    });
+
+    // Update items table
+    function updateItemsTable() {
+        const tbody = document.getElementById('itemsTableBody');
+        tbody.innerHTML = items.map(item => `
+            <tr>
+                <td>${item.description}</td>
+                <td class="text-center">${item.quantity}</td>
+                <td class="text-end">${item.unit_price.toFixed(2)}</td>
+                <td class="text-end">${item.line_total.toFixed(2)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${item.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        
+        // Add hidden inputs for form submission
+        const form = document.getElementById('invoiceForm');
+        // Remove existing item inputs
+        form.querySelectorAll('input[name^="items-"]').forEach(input => input.remove());
+        
+        // Add new item inputs
+        items.forEach((item, index) => {
+            ['description', 'quantity', 'unit_price', 'line_total'].forEach(field => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `items-${index}-${field}`;
+                input.value = item[field];
+                form.appendChild(input);
+            });
+        });
+    }
+
+    // Calculate totals
+    function calculateTotals() {
+        const subtotal = items.reduce((sum, item) => sum + item.line_total, 0);
+        
+        // Check which discount input was used
+        const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+        const discountAmountInput = parseFloat(document.getElementById('discountAmountInput').value) || 0;
+        
+        let discountAmount = 0;
+        
+        // If fixed amount is entered, use it and calculate percentage
+        if (discountAmountInput > 0) {
+            discountAmount = discountAmountInput;
+            // Update percentage field to show calculated percentage
+            if (subtotal > 0) {
+                const calculatedPercent = (discountAmount / subtotal) * 100;
+                document.getElementById('discountPercent').value = calculatedPercent.toFixed(2);
+            }
+        } else if (discountPercent > 0) {
+            // Calculate discount from percentage
+            discountAmount = subtotal * (discountPercent / 100);
+        }
+        
+        const taxRate = parseFloat(document.querySelector('[name="tax_rate"]').value) || 0;
+        const taxableAmount = subtotal - discountAmount;
+        const taxAmount = taxableAmount * (taxRate / 100);
+        const total = taxableAmount + taxAmount;
+        
+        document.getElementById('discountAmount').value = discountAmount.toFixed(2);
+        document.getElementById('summarySubtotal').textContent = subtotal.toFixed(2) + ' QAR';
+        document.getElementById('summaryDiscount').textContent = discountAmount.toFixed(2) + ' QAR';
+        document.getElementById('summaryTax').textContent = taxAmount.toFixed(2) + ' QAR';
+        document.getElementById('summaryTotal').textContent = total.toFixed(2) + ' QAR';
+    }
+
+    // Discount calculation
+    document.getElementById('discountPercent').addEventListener('input', function() {
+        // Clear fixed amount when percentage is entered
+        if (this.value > 0) {
+            document.getElementById('discountAmountInput').value = '0.00';
+        }
+        calculateTotals();
+    });
+    document.getElementById('discountAmountInput').addEventListener('input', function() {
+        // Percentage will be auto-calculated from amount
+        calculateTotals();
+    });
+    document.querySelector('[name="tax_rate"]').addEventListener('input', calculateTotals);
+
+    function clearItemForm() {
+        itemDescription.value = '';
+        itemQuantity.value = '1';
+        itemPrice.value = '';
+        itemTotal.value = '';
+        itemSuggestions.style.display = 'none';
+    }
+
+    // Global functions
+    function selectItem(description, price) {
+        itemDescription.value = description;
+        itemPrice.value = price;
+        calculateLineTotal();
+        itemSuggestions.style.display = 'none';
+    }
+
+    window.removeItem = function(id) {
+        items = items.filter(item => item.id !== id);
+        updateItemsTable();
+        calculateTotals();
+    };
+
+    // Save new customer
+    document.getElementById('saveCustomer').addEventListener('click', function() {
+        const formData = new FormData(document.getElementById('customerForm'));
+        
+        fetch('{% url "customer-create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Add new customer to select
+                const option = new Option(data.customer.name + ' - ' + data.customer.phone, data.customer.id, true, true);
+                customerSelect.add(option);
+                customerSelect.dispatchEvent(new Event('change'));
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('customerModal'));
+                modal.hide();
+                
+                // Reset form
+                document.getElementById('customerForm').reset();
+            } else {
+                alert('Error creating customer: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('Error creating customer: ' + error.message);
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}{{ receipt.receipt_number }} - Receipt Details{% endblock %}
+{% block header %}Receipt Details{% endblock %}
+
+{% block header_buttons %}
+<div class="btn-group">
+    <a href="{% url 'receipt-update' receipt.pk %}" class="btn btn-primary">
+        <i class="fas fa-edit me-2"></i>Edit
+    </a>
+    <a href="{% url 'receipt-html-pdf' receipt.pk %}" class="btn pdf-btn" target="_blank">
+        <i class="fas fa-file-pdf me-2"></i>Download PDF
+    </a>
+    <a href="{% url 'finance:receipt-allocation-update' receipt.pk %}" class="btn btn-warning">
+        <i class="fas fa-sitemap me-2"></i>Allocate Payment
+    </a>
+    <button onclick="printDocument()" class="btn print-btn">
+        <i class="fas fa-print me-2"></i>Print
+    </button>
+    <a href="{% url 'receipt-delete' receipt.pk %}" class="btn btn-danger">
+        <i class="fas fa-trash me-2"></i>Delete
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Receipt: {{ receipt.receipt_number }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Customer Information:</h6>
+                        <strong class="cairo arabic">{{ receipt.customer.name }}</strong><br>
+                        {{ receipt.customer.phone }}<br>
+                        {% if receipt.customer.email %}
+                            {{ receipt.customer.email }}<br>
+                        {% endif %}
+                        {% if receipt.customer.company %}
+                            <span class="cairo arabic">{{ receipt.customer.company }}</span><br>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Payment Information:</h6>
+                        <strong>Receipt Date:</strong> {{ receipt.payment_date }}<br>
+                        <strong>Payment Method:</strong> {{ receipt.get_payment_method_display }}<br>
+                        <strong>Amount:</strong> <span class="h5 text-success">{{ receipt.amount }} QAR</span><br>
+                        {% if receipt.reference_number %}
+                        <strong>Reference:</strong> {{ receipt.reference_number }}<br>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6>Related Invoice:</h6>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Invoice:</strong> <a href="{% url 'invoice-detail' receipt.invoice.pk %}">{{ receipt.invoice.invoice_number }}</a><br>
+                                        <strong>Invoice Date:</strong> {{ receipt.invoice.invoice_date }}<br>
+                                        <strong>Due Date:</strong> {{ receipt.invoice.due_date }}<br>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Invoice Total:</strong> {{ receipt.invoice.total_amount }} QAR<br>
+                                        <strong>Total Paid:</strong> {{ receipt.invoice.paid_amount }} QAR<br>
+                                        <strong>Balance Due:</strong> 
+                                        <span class="{% if receipt.invoice.balance_due > 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {{ receipt.invoice.balance_due }} QAR
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if receipt.allocations.all %}
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6>Allocation Breakdown:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice</th>
+                                        <th>Due Date</th>
+                                        <th class="text-end">Allocated Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for allocation in receipt.allocations.all %}
+                                    <tr>
+                                        <td><a href="{% url 'invoice-detail' allocation.invoice.pk %}">{{ allocation.invoice.invoice_number }}</a></td>
+                                        <td>{{ allocation.invoice.due_date }}</td>
+                                        <td class="text-end">{{ allocation.amount }} QAR</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="3" class="text-muted">No allocations configured.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if receipt.notes %}
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Notes:</h6>
+                        <p class="cairo arabic border p-3 bg-light">{{ receipt.notes|linebreaks }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'receipt-list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-list me-2"></i>Back to List
+                            </a>
+                            <div>
+                                <a href="{% url 'invoice-detail' receipt.invoice.pk %}" class="btn btn-outline-info me-2">
+                                    <i class="fas fa-file-invoice me-2"></i>View Invoice
+                                </a>
+                                <a href="{% url 'finance:receipt-allocation-update' receipt.pk %}" class="btn btn-outline-warning me-2">
+                                    <i class="fas fa-sitemap me-2"></i>Manage Allocation
+                                </a>
+                                <a href="{% url 'receipt-update' receipt.pk %}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>Edit Receipt
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

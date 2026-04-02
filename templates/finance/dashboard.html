@@ -1,0 +1,229 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}Finance Dashboard{% endblock %}
+{% block header %}Finance Dashboard{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'finance:customer-statement' %}" class="btn btn-primary">
+    <i class="fas fa-file-invoice-dollar me-2"></i>Customer Statements
+</a>
+<a href="{% url 'finance:statement-run-list' %}" class="btn btn-outline-primary">
+    <i class="fas fa-calendar-check me-2"></i>Statement Runs
+</a>
+<a href="{% url 'finance:profit-loss' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-chart-area me-2"></i>P&L
+</a>
+<a href="{% url 'finance:expense-create' %}" class="btn btn-success">
+    <i class="fas fa-plus me-2"></i>New Expense
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card card-stats info">
+            <div class="card-body">
+                <small class="text-white-50">Total Invoiced</small>
+                <h3 class="mb-0">QAR {{ total_invoiced|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stats success">
+            <div class="card-body">
+                <small class="text-white-50">Total Collected</small>
+                <h3 class="mb-0">QAR {{ total_collected|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stats warning">
+            <div class="card-body">
+                <small class="text-white-50">Total Expenses</small>
+                <h3 class="mb-0">QAR {{ total_expenses|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stats danger">
+            <div class="card-body">
+                <small class="text-white-50">Net Cash Position</small>
+                <h3 class="mb-0">QAR {{ net_cash_position|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Monthly Finance Trends</h5>
+                <span class="text-muted small">Invoices vs collections vs expenses</span>
+            </div>
+            <div class="card-body">
+                <canvas id="financeTrendsChart" height="110"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Expenses</h5>
+                <a href="{% url 'finance:expense-list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_expenses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Expense #</th>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in recent_expenses %}
+                            <tr>
+                                <td><a href="{% url 'finance:expense-detail' expense.pk %}">{{ expense.expense_number }}</a></td>
+                                <td>{{ expense.title }}</td>
+                                <td>{{ expense.expense_date }}</td>
+                                <td>{{ expense.category|default:'Uncategorized' }}</td>
+                                <td>QAR {{ expense.amount|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No expenses recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Statement Runs</h5>
+                <a href="{% url 'finance:statement-run-list' %}" class="btn btn-sm btn-outline-primary">Open</a>
+            </div>
+            <div class="card-body">
+                {% for run in recent_statement_runs %}
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold">{{ run.customer.name }}</div>
+                        <small class="text-muted">{{ run.period_start }} to {{ run.period_end }}</small>
+                    </div>
+                    <span class="badge bg-{% if run.status == 'emailed' %}success{% else %}secondary{% endif %}">{{ run.get_status_display }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted mb-0">No statement runs yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Collections Snapshot</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Outstanding Receivables</span>
+                    <strong>QAR {{ outstanding_receivables|floatformat:2 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>This Month Expenses</span>
+                    <strong>QAR {{ this_month_expenses|floatformat:2 }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Top Outstanding Customers</h5>
+                <a href="{% url 'finance:customer-statement' %}" class="btn btn-sm btn-outline-primary">Open Statements</a>
+            </div>
+            <div class="card-body">
+                {% if top_customers %}
+                    {% for item in top_customers %}
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <div class="fw-semibold">{{ item.customer.name }}</div>
+                            <small class="text-muted">{{ item.customer.company|default:item.customer.phone }}</small>
+                        </div>
+                        <a href="{% url 'finance:customer-statement-customer' item.customer.pk %}" class="btn btn-sm btn-outline-danger">
+                            QAR {{ item.outstanding|floatformat:2 }}
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted mb-0">No customer balances yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{{ monthly_chart_labels|json_script:"finance-chart-labels" }}
+{{ monthly_chart_invoiced|json_script:"finance-chart-invoiced" }}
+{{ monthly_chart_collected|json_script:"finance-chart-collected" }}
+{{ monthly_chart_expenses|json_script:"finance-chart-expenses" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    const labels = JSON.parse(document.getElementById('finance-chart-labels').textContent);
+    const invoiced = JSON.parse(document.getElementById('finance-chart-invoiced').textContent);
+    const collected = JSON.parse(document.getElementById('finance-chart-collected').textContent);
+    const expenses = JSON.parse(document.getElementById('finance-chart-expenses').textContent);
+
+    new Chart(document.getElementById('financeTrendsChart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Invoiced',
+                    data: invoiced,
+                    backgroundColor: 'rgba(54, 162, 235, 0.65)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Collected',
+                    data: collected,
+                    backgroundColor: 'rgba(16, 185, 129, 0.65)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Expenses',
+                    data: expenses,
+                    backgroundColor: 'rgba(239, 68, 68, 0.65)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback(value) {
+                            return 'QAR ' + Number(value).toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

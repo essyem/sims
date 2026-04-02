@@ -1,0 +1,70 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}Convert Quotation to Invoice - Sales Management{% endblock %}
+{% block header %}Convert Quotation to Invoice{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exchange-alt me-2"></i>Convert Quotation to Invoice
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Convert the following quotation into an invoice:</p>
+                
+                <div class="alert alert-light border">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-2">{{ quotation.quotation_number }}</h6>
+                            <p class="mb-1"><strong>Customer:</strong> {{ quotation.customer.name }}</p>
+                            <p class="mb-1"><strong>Date:</strong> {{ quotation.quotation_date }}</p>
+                            <p class="mb-1"><strong>Valid Until:</strong> {{ quotation.valid_until }}</p>
+                            <p class="mb-0"><strong>Total:</strong> {{ quotation.total_amount }} QAR</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Items Summary:</h6>
+                            {% for item in quotation.items.all %}
+                                <small class="d-block">{{ item.description }} ({{ item.quantity }} × {{ item.unit_price }} QAR)</small>
+                            {% empty %}
+                                <small class="text-muted">No items</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="due_date" class="form-label">Due Date *</label>
+                            <input type="date" name="due_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Invoice Date</label>
+                            <input type="date" class="form-control" value="{{ today|date:'Y-m-d' }}" readonly>
+                            <small class="text-muted">Auto-set to today's date</small>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> All quotation items, tax rates, and customer details will be copied to the new invoice. The quotation status will be updated to "Accepted".
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'quotation-detail' quotation.pk %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-file-invoice me-2"></i>Create Invoice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

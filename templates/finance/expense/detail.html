@@ -1,0 +1,31 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}{{ expense.expense_number }}{% endblock %}
+{% block header %}Expense Details{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'finance:expense-update' expense.pk %}" class="btn btn-primary"><i class="fas fa-edit me-2"></i>Edit</a>
+<a href="{% url 'finance:expense-delete' expense.pk %}" class="btn btn-danger"><i class="fas fa-trash me-2"></i>Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6"><strong>Expense #</strong><div>{{ expense.expense_number }}</div></div>
+                    <div class="col-md-6"><strong>Title</strong><div>{{ expense.title }}</div></div>
+                    <div class="col-md-6"><strong>Category</strong><div>{{ expense.category|default:'Uncategorized' }}</div></div>
+                    <div class="col-md-6"><strong>Date</strong><div>{{ expense.expense_date }}</div></div>
+                    <div class="col-md-6"><strong>Payment Method</strong><div>{{ expense.get_payment_method_display }}</div></div>
+                    <div class="col-md-6"><strong>Amount</strong><div>QAR {{ expense.amount|floatformat:2 }}</div></div>
+                    <div class="col-md-6"><strong>Vendor</strong><div>{{ expense.vendor|default:'-' }}</div></div>
+                    <div class="col-md-6"><strong>Reference</strong><div>{{ expense.reference_number|default:'-' }}</div></div>
+                    <div class="col-12"><strong>Notes</strong><div>{{ expense.notes|default:'-'|linebreaks }}</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

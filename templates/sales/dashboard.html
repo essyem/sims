@@ -1,0 +1,279 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}Dashboard - Sales Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-stats">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="card-category mb-0">Total Customers</p>
+                            <h4 class="card-title mb-0">{{ total_customers }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-stats success">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="card-category mb-0">Total Invoices</p>
+                            <h4 class="card-title mb-0">{{ total_invoices }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="fas fa-file-invoice fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-stats warning">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="card-category mb-0">Pending Invoices</p>
+                            <h4 class="card-title mb-0">{{ pending_invoices }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-stats danger">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="numbers">
+                            <p class="card-category mb-0">Overdue Invoices</p>
+                            <h4 class="card-title mb-0">{{ overdue_invoices }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Invoices</h5>
+                <a href="{% url 'invoice-list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_invoices %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in recent_invoices %}
+                                <tr>
+                                    <td><a href="{% url 'invoice-detail' invoice.pk %}">{{ invoice.invoice_number }}</a></td>
+                                    <td>{{ invoice.customer.name }}</td>
+                                    <td>{{ invoice.total_amount }} QAR</td>
+                                    <td>
+                                        <span class="badge bg-{% if invoice.status == 'paid' %}success{% elif invoice.status == 'sent' %}warning{% elif invoice.status == 'overdue' %}danger{% else %}secondary{% endif %}">
+                                            {{ invoice.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent invoices found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Quotations</h5>
+                <a href="{% url 'quotation-list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_quotations %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Quote #</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quotation in recent_quotations %}
+                                <tr>
+                                    <td><a href="{% url 'quotation-detail' quotation.pk %}">{{ quotation.quotation_number }}</a></td>
+                                    <td>{{ quotation.customer.name }}</td>
+                                    <td>{{ quotation.total_amount }} QAR</td>
+                                    <td>
+                                        <span class="badge bg-{% if quotation.status == 'accepted' %}success{% elif quotation.status == 'sent' %}info{% elif quotation.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                            {{ quotation.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent quotations found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Metrics Row -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #28a745, #20c997);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Total Invoiced</small>
+                        <h4 class="mb-0">{{ total_invoiced|floatformat:0 }} QAR</h4>
+                    </div>
+                    <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #007bff, #6610f2);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Total Collected</small>
+                        <h4 class="mb-0">{{ total_paid|floatformat:0 }} QAR</h4>
+                    </div>
+                    <i class="fas fa-money-check-alt fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fd7e14, #e83e8c);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Outstanding</small>
+                        <h4 class="mb-0">{{ total_outstanding|floatformat:0 }} QAR</h4>
+                    </div>
+                    <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #6c757d, #495057);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Collection Rate</small>
+                        <h4 class="mb-0">{{ collection_rate|floatformat:1 }}%</h4>
+                    </div>
+                    <i class="fas fa-percentage fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Top Outstanding Customers</h5>
+            </div>
+            <div class="card-body">
+                {% if top_outstanding_customers %}
+                    {% for item in top_outstanding_customers %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <div>
+                            <strong>{{ item.customer.name|truncatechars:20 }}</strong>
+                            <small class="d-block text-muted">{{ item.invoice_count }} invoice{{ item.invoice_count|pluralize }}</small>
+                        </div>
+                        <span class="text-danger fw-bold">{{ item.outstanding_balance|floatformat:0 }} QAR</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">No outstanding balances</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'customer-create' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>New Customer
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'quotation-create' %}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-file-alt me-2"></i>New Quotation
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'invoice-create' %}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-file-invoice me-2"></i>New Invoice
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{% url 'receipt-create' %}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-receipt me-2"></i>New Receipt
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

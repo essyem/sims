@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;700;800;900&display=swap');
+        @page { size: A4; margin: 0.7cm; }
+        html, body { margin: 0; padding: 0; }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Noto Sans Arabic', 'DejaVu Sans', Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #333;
+            background: #fff;
+        }
+        
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            padding-bottom: 80px;
+            background: white;
+        }
+        
+        .header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #8B0000;
+            padding-bottom: 10px;
+        }
+        
+        .header-logo {
+            flex: 0 0 100px;
+        }
+        
+        .header img {
+            max-height: 80px;
+            width: auto;
+            border: none;
+            outline: none;
+        }
+        
+        .header-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            gap: 20px;
+        }
+        
+        .header-info-left {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .header-info-right {
+            flex: 1;
+            text-align: right;
+            direction: rtl;
+        }
+        
+        .company-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 3px;
+        }
+        
+        .company-title-ar {
+            font-size: 11px;
+            font-weight: bold;
+            color: #000;
+            font-family: 'Cairo', 'Noto Sans Arabic', Arial, sans-serif;
+            margin-bottom: 3px;
+        }
+        
+        .company-address {
+            font-size: 9px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 2px;
+        }
+        
+        .company-address-ar {
+            font-size: 9px;
+            color: #333;
+            font-family: 'Cairo', 'Noto Sans Arabic', Arial, sans-serif;
+            line-height: 1.4;
+            margin-bottom: 2px;
+        }
+        
+        .company-contact {
+            font-size: 8px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        .doc-title {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            letter-spacing: 2px;
+        }
+        
+        .event-details {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+        }
+        
+        .event-details h4 {
+            color: #0369a1;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .event-details-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .event-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .event-item .label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .event-item .value {
+            font-weight: 600;
+            color: #1e3a5f;
+            font-size: 12px;
+        }
+        
+        .bank-details {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            width: 380px;
+            margin-top: 10px;
+        }
+        
+        .bank-details h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            font-size: 12px;
+        }
+        
+        .bank-details p {
+            margin: 4px 0;
+            font-size: 11px;
+        }
+        
+        .signature-section {
+            margin-top: 30px;
+            text-align: right;
+        }
+        
+        .signature-box {
+            display: inline-block;
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #333;
+            margin: 60px 0 5px 0;
+        }
+        
+        .signature-label {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .invoice-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .section {
+            margin-bottom: 12px;
+        }
+        
+        .addresses {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .left, .right {
+            flex: 1;
+        }
+        
+        .invoice-details, .customer-details {
+            flex: 1;
+        }
+        
+        .invoice-details {
+            margin-right: 40px;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            width: 140px;
+            color: #2c3e50;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .left h4, .right h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            font-size: 12px;
+        }
+        
+        .left p, .right p {
+            margin: 0;
+            line-height: 1.5;
+            font-size: 11px;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+        
+        .items-table th, .items-table td {
+            border: 0.5px solid #ddd;
+            padding: 6px;
+            font-size: 11px;
+            vertical-align: middle;
+        }
+        
+        .items-table th {
+            background: #f8f9fa;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .currency {
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .items-table .text-right {
+            text-align: right;
+        }
+        
+        .items-table .text-center {
+            text-align: center;
+        }
+        
+        .arabic-text {
+            direction: rtl;
+            font-family: 'Noto Sans Arabic', Arial, sans-serif;
+            text-align: right;
+        }
+        
+        .totals {
+            float: right;
+            width: 320px;
+            margin-top: 10px;
+        }
+        
+        .totals table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .totals th, .totals td {
+            border: 0.5px solid #ddd;
+            padding: 6px;
+            font-size: 11px;
+        }
+        
+        .totals th {
+            background: #f8f9fa;
+            text-align: left;
+        }
+        
+        .notes {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f9fafb;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .notes h4 {
+            color: #2563eb;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .notes p {
+            color: #6b7280;
+            line-height: 1.8;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .arabic {
+            font-family: 'Cairo', 'Noto Sans Arabic', 'DejaVu Sans', serif;
+            direction: rtl;
+            display: inline;
+            margin-left: 0;
+            color: #666;
+            font-size: 10px;
+        }
+        
+        .clear {
+            clear: both;
+        }
+        
+        .status-paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 10px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 10px;
+            background: white;
+        }
+        
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .invoice-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-logo">
+                <img src="{{ logo_path }}" alt="Company Logo">
+            </div>
+            <div class="header-info">
+                <!-- English Info (Left) -->
+                <div class="header-info-left">
+                    <div class="company-title">Al-Mutakamelah for Wedding & Events</div>
+                    <div class="company-address">Al Furousiya Street, Zone 55, Street 280, Bldg 322</div>
+                    <div class="company-address">First floor, Office No. 3 - Doha - Qatar</div>
+                    <div class="company-contact">Tel: 4800303 | 4819991</div>
+                    <div class="company-contact">Fax: 4812052</div>
+                    <div class="company-contact">C.R. No.: 32991 | P.O.Box: 92440</div>
+                </div>
+                <!-- Arabic Info (Right) -->
+                <div class="header-info-right">
+                    <div class="company-title-ar">المتكاملة للأفراح والمناسبات</div>
+                    <div class="company-address-ar">شارع الفروسية، منطقة 55، شارع 280، مبنى 322</div>
+                    <div class="company-address-ar">الطابق الأول، مكتب 3 - الدوحة - قطر</div>
+                    <div class="company-contact">هاتف: 44800303 | 44819991</div>
+                    <div class="company-contact">فاكس: 44812052</div>
+                    <div class="company-contact">سجل تجاري: 32991 | صندوق بريد: 92440</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Document Title -->
+        <div class="doc-title">INVOICE </span></div>
+
+        <div class="main">
+            <!-- Invoice & Customer Details -->
+            <div class="section addresses">
+                <div class="left">
+                    <h4>Bill To:</h4>
+                    <p>
+                        <strong>{{ invoice.customer.name }}</strong><br>
+                        {% if invoice.customer.company %}{{ invoice.customer.company }}<br>{% endif %}
+                        {{ invoice.customer.email }}<br>
+                        {% if invoice.customer.phone %}Phone: {{ invoice.customer.phone }}<br>{% endif %}
+                        {% if invoice.customer.address %}{{ invoice.customer.address }}{% endif %}
+                    </p>
+                </div>
+                <div class="right">
+                    <h4></h4>
+                    <p>
+                        <strong>Invoice #:</strong> {{ invoice.invoice_number }}<br>
+                        <strong>Date:</strong> {{ invoice.invoice_date|date:"F d, Y" }}<br>
+                        <strong>Due Date:</strong> {{ invoice.due_date|date:"F d, Y" }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Event Details -->
+            {% if invoice.event_start_date or invoice.event_location %}
+            <div class="section" style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-bottom: 12px;">
+                <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 12px;">Event Details <span class="arabic">تفاصيل المناسبة</span></h4>
+                <p style="margin: 0; font-size: 11px;">
+                    {% if invoice.event_start_date %}<strong>Start:</strong> {{ invoice.event_start_date|date:"F d, Y" }} &nbsp;&nbsp;&nbsp;{% endif %}
+                    {% if invoice.event_end_date %}<strong>End:</strong> {{ invoice.event_end_date|date:"F d, Y" }} &nbsp;&nbsp;&nbsp;{% endif %}
+                    {% if invoice.event_location %}<strong>Location:</strong> {{ invoice.event_location }}{% endif %}
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Items Table -->
+            <div class="section">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th style="width:6%" class="text-center">No.</th>
+                            <th>Description</th>
+                            <th style="width:10%" class="text-center">Qty</th>
+                            <th style="width:14%" class="text-right">Unit Price</th>
+                            <th style="width:14%" class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in invoice.items.all %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter }}</td>
+                            <td class="cairo arabic">{{ item.description }}</td>
+                            <td class="text-center">{{ item.quantity|floatformat:0 }}</td>
+                            <td class="text-right"><span class="currency"></span> {{ item.unit_price|floatformat:2 }}</td>
+                            <td class="text-right"><span class="currency"></span> {{ item.line_total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bank Details and Totals -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-top: 10px;">
+                <!-- Bank Details (Left) -->
+                <div class="bank-details" style="font-size: 9px; flex: 1;">
+                    <h4 style="font-size: 10px; margin: 0 0 6px 0;">Payment Information</h4>
+                    <p style="margin-bottom: 3px; line-height: 1.3;"><strong>A/C Name:</strong> AlMotakamila for Celebrations & Occasions</p>
+                    <p style="margin-bottom: 3px; line-height: 1.3;"><strong>Bank:</strong> Qatar Islamic Bank</p>
+                    <p style="margin-bottom: 3px; line-height: 1.3;"><strong>A/C Number:</strong> 011150451014</p>
+                    <p style="margin-bottom: 3px; line-height: 1.3;"><strong>IBAN No:</strong> QA48QISB0000000000111504510014</p>
+                </div>
+
+                <!-- Totals (Right) -->
+                <div class="totals" style="flex-shrink: 0; margin-top: 0;">
+                    <table>
+                        <tr>
+                            <th>Subtotal <span class="arabic">الفرعي</span></th>
+                            <td class="text-right"><span class="currency">QAR</span> {{ invoice.subtotal|floatformat:2 }}</td>
+                        </tr>
+                        {% if invoice.discount_amount > 0 %}
+                        <tr>
+                            <th>Discount <span class="arabic">الخصم</span> ({{ invoice.discount_percentage }}%)</th>
+                            <td class="text-right">-<span class="currency">QAR</span> {{ invoice.discount_amount|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th><strong>Grand Total <span class="arabic">الإجمالي</span></strong></th>
+                            <td class="text-right"><strong><span class="currency">QAR</span> {{ invoice.total_amount|floatformat:2 }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="clear"></div>
+
+            <!-- Notes -->
+            {% if invoice.notes %}
+                <div style="margin-top: 16px; background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 12px;">Notes</h4>
+                <p class="cairo arabic" style="margin: 0; font-size: 11px;">{{ invoice.notes }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <div class="signature-box">
+                    <div class="signature-line"></div>
+                    <div class="signature-label">Authorized Signature<br><span class="arabic">التوقيع المعتمد</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Thank you for your business! | <span class="arabic">شكراً لتعاملكم معنا</span>
+        </div>
+    </div>
+</body>
+</html>

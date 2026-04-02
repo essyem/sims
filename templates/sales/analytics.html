@@ -1,0 +1,233 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}Analytics & Reports - Sales Management{% endblock %}
+{% block header %}Analytics & Reports{% endblock %}
+
+{% block content %}
+<!-- Financial Overview Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #28a745, #20c997);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Total Invoiced</small>
+                        <h4 class="mb-0">{{ total_invoiced|floatformat:0 }} QAR</h4>
+                    </div>
+                    <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #007bff, #6610f2);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Total Collected</small>
+                        <h4 class="mb-0">{{ total_paid|floatformat:0 }} QAR</h4>
+                    </div>
+                    <i class="fas fa-money-check-alt fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fd7e14, #e83e8c);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Outstanding</small>
+                        <h4 class="mb-0">{{ total_outstanding|floatformat:0 }} QAR</h4>
+                    </div>
+                    <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #6c757d, #495057);">
+            <div class="card-body text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block opacity-75">Collection Rate</small>
+                        <h4 class="mb-0">{{ collection_rate|floatformat:1 }}%</h4>
+                    </div>
+                    <i class="fas fa-percentage fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Aging Analysis -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Accounts Receivable Aging</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="p-3 border rounded">
+                            <h6 class="text-success">Current (Not Due)</h6>
+                            <h4>{{ current_due.total_amount__sum|default:0|floatformat:0 }} QAR</h4>
+                            <small class="text-muted">{{ current_due.id__count|default:0 }} invoices</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="p-3 border rounded">
+                            <h6 class="text-warning">1-30 Days</h6>
+                            <h4>{{ overdue_1_30.total_amount__sum|default:0|floatformat:0 }} QAR</h4>
+                            <small class="text-muted">{{ overdue_1_30.id__count|default:0 }} invoices</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="p-3 border rounded">
+                            <h6 class="text-danger">31-60 Days</h6>
+                            <h4>{{ overdue_31_60.total_amount__sum|default:0|floatformat:0 }} QAR</h4>
+                            <small class="text-muted">{{ overdue_31_60.id__count|default:0 }} invoices</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="p-3 border rounded">
+                            <h6 class="text-dark">60+ Days</h6>
+                            <h4>{{ overdue_60_plus.total_amount__sum|default:0|floatformat:0 }} QAR</h4>
+                            <small class="text-muted">{{ overdue_60_plus.id__count|default:0 }} invoices</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Top Outstanding Customers -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Top Outstanding Customers</h5>
+            </div>
+            <div class="card-body">
+                {% if top_customers %}
+                    {% for item in top_customers %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <div>
+                            <strong>{{ item.customer.name|truncatechars:25 }}</strong>
+                            <small class="d-block text-muted">{{ item.customer.company|default:item.customer.phone|truncatechars:30 }}</small>
+                            <small class="text-info">{{ item.invoice_count }} outstanding invoice{{ item.invoice_count|pluralize }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-danger fw-bold">{{ item.outstanding_balance|floatformat:0 }} QAR</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">No outstanding balances found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Method Statistics -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Method Analysis</h5>
+            </div>
+            <div class="card-body">
+                {% for method in payment_stats %}
+                    {% with method_display=method.payment_method|title %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>{% if method.payment_method == 'cash' %}Cash{% elif method.payment_method == 'card' %}Card{% elif method.payment_method == 'bank_transfer' %}Bank Transfer{% elif method.payment_method == 'check' %}Check{% elif method.payment_method == 'online' %}Online Payment{% else %}{{ method_display }}{% endif %}</strong>
+                            <small class="d-block text-muted">{{ method.count }} transactions</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold">{{ method.total_amount|floatformat:0 }} QAR</span>
+                            <small class="d-block text-muted">Avg: {{ method.avg_amount|floatformat:0 }} QAR</small>
+                        </div>
+                    </div>
+                    {% endwith %}
+                {% empty %}
+                    <p class="text-muted mb-0">No payment data available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Trends -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Monthly Trends (Last 12 Months)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Invoices Issued</th>
+                                <th>Invoice Amount</th>
+                                <th>Payments Received</th>
+                                <th>Payment Amount</th>
+                                <th>Net Flow</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for month in monthly_data %}
+                            <tr>
+                                <td><strong>{{ month.month_name }}</strong></td>
+                                <td>{{ month.invoices_count }}</td>
+                                <td>{{ month.invoices_amount|floatformat:0 }} QAR</td>
+                                <td>{{ month.payments_count }}</td>
+                                <td>{{ month.payments_amount|floatformat:0 }} QAR</td>
+                                <td class="{% if month.payments_amount > month.invoices_amount %}text-success{% elif month.payments_amount < month.invoices_amount %}text-danger{% endif %}">
+                                    {{ month.payments_amount|add:month.invoices_amount|floatformat:0 }} QAR
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h3 class="text-primary">{{ total_customers }}</h3>
+                        <span class="text-muted">Total Customers</span>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-success">{{ total_quotations }}</h3>
+                        <span class="text-muted">Total Quotations</span>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-info">{{ total_invoices }}</h3>
+                        <span class="text-muted">Total Invoices</span>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-warning">{{ total_receipts }}</h3>
+                        <span class="text-muted">Total Receipts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

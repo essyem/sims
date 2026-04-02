@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Statement</title>
+    <style>
+        @page { size: A4; margin: 1.2cm; }
+        body {
+            font-family: 'Cairo', 'Noto Sans Arabic', 'DejaVu Sans', Arial, sans-serif;
+            color: #1f2937;
+            font-size: 12px;
+        }
+        h1, h2, h3 { margin: 0; }
+        .header {
+            border-bottom: 2px solid #1d4ed8;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+        }
+        .muted { color: #6b7280; }
+        .summary {
+            display: table;
+            width: 100%;
+            margin: 18px 0;
+        }
+        .summary-item {
+            display: table-cell;
+            width: 25%;
+            border: 1px solid #dbeafe;
+            background: #f8fbff;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #eff6ff;
+        }
+        .text-right { text-align: right; }
+        .section { margin-top: 22px; }
+        .small { font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Customer Statement</h1>
+        <p class="muted">{{ statement.customer.name }}{% if statement.customer.company %} - {{ statement.customer.company }}{% endif %}</p>
+        <p class="muted small">
+            Period:
+            {% if selected_start_date %}{{ selected_start_date }}{% else %}Beginning{% endif %}
+            to
+            {% if selected_end_date %}{{ selected_end_date }}{% else %}Today{% endif %}
+        </p>
+    </div>
+
+    <div class="summary">
+        <div class="summary-item">
+            <div class="muted small">Opening Balance</div>
+            <strong>QAR {{ statement.opening_balance|floatformat:2 }}</strong>
+        </div>
+        <div class="summary-item">
+            <div class="muted small">Period Debits</div>
+            <strong>QAR {{ statement.period_debits|floatformat:2 }}</strong>
+        </div>
+        <div class="summary-item">
+            <div class="muted small">Period Credits</div>
+            <strong>QAR {{ statement.period_credits|floatformat:2 }}</strong>
+        </div>
+        <div class="summary-item">
+            <div class="muted small">Closing Balance</div>
+            <strong>QAR {{ statement.closing_balance|floatformat:2 }}</strong>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Statement Entries</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Reference</th>
+                    <th>Description</th>
+                    <th class="text-right">Debit</th>
+                    <th class="text-right">Credit</th>
+                    <th class="text-right">Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{% if statement.start_date %}{{ statement.start_date }}{% else %}Opening{% endif %}</td>
+                    <td>-</td>
+                    <td>Opening Balance</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">-</td>
+                    <td class="text-right">QAR {{ statement.opening_balance|floatformat:2 }}</td>
+                </tr>
+                {% for entry in statement.entries %}
+                <tr>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.reference }}</td>
+                    <td>{{ entry.description }}</td>
+                    <td class="text-right">{% if entry.debit %}QAR {{ entry.debit|floatformat:2 }}{% else %}-{% endif %}</td>
+                    <td class="text-right">{% if entry.credit %}QAR {{ entry.credit|floatformat:2 }}{% else %}-{% endif %}</td>
+                    <td class="text-right">QAR {{ entry.balance|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h3>Aging Summary</h3>
+        <table>
+            <tbody>
+                <tr><td>Current</td><td class="text-right">QAR {{ statement.aging.current|floatformat:2 }}</td></tr>
+                <tr><td>1 - 30 days</td><td class="text-right">QAR {{ statement.aging.days_1_30|floatformat:2 }}</td></tr>
+                <tr><td>31 - 60 days</td><td class="text-right">QAR {{ statement.aging.days_31_60|floatformat:2 }}</td></tr>
+                <tr><td>61 - 90 days</td><td class="text-right">QAR {{ statement.aging.days_61_90|floatformat:2 }}</td></tr>
+                <tr><td>90+ days</td><td class="text-right">QAR {{ statement.aging.days_90_plus|floatformat:2 }}</td></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

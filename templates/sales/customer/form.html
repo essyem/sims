@@ -1,0 +1,35 @@
+{% extends 'sales/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if object %}Edit Customer{% else %}New Customer{% endif %} - Sales Management{% endblock %}
+{% block header %}{% if object %}Edit Customer{% else %}New Customer{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-gradient">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>
+                    {% if object %}Edit Customer: {{ object.name }}{% else %}Create New Customer{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'customer-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{% if object %}Update{% else %}Create{% endif %} Customer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

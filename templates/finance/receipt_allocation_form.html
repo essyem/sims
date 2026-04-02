@@ -1,0 +1,90 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}Receipt Allocation{% endblock %}
+{% block header %}Receipt Allocation{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'receipt-detail' receipt.pk %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Back to Receipt
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Allocate {{ receipt.receipt_number }} ({{ receipt.amount }} QAR)</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Invoice</th>
+                                    <th>Customer</th>
+                                    <th>Current Balance</th>
+                                    <th>Allocate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in invoice_rows %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'invoice-detail' row.invoice.pk %}">{{ row.invoice.invoice_number }}</a>
+                                    </td>
+                                    <td>{{ receipt.customer.name }}</td>
+                                    <td>{{ row.invoice.balance_due }} QAR</td>
+                                    <td>
+                                        {{ row.field }}
+                                        {% if row.field.errors %}
+                                        <div class="text-danger small">{{ row.field.errors|striptags }}</div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">Save Allocation</button>
+                        <a href="{% url 'receipt-detail' receipt.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header"><h6 class="mb-0">Summary</h6></div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2"><span>Receipt Amount</span><strong>{{ receipt.amount }} QAR</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span>Allocated</span><strong>{{ allocated_total }} QAR</strong></div>
+                <div class="d-flex justify-content-between"><span>Unallocated</span><strong>{{ unallocated_total }} QAR</strong></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0">Current Allocation</h6></div>
+            <div class="card-body">
+                {% for allocation in allocations %}
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                    <span>{{ allocation.invoice.invoice_number }}</span>
+                    <span>{{ allocation.amount }} QAR</span>
+                </div>
+                {% empty %}
+                <p class="text-muted mb-0">No allocations yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

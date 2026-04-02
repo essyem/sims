@@ -1,0 +1,85 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}Receipts - Sales Management{% endblock %}
+{% block header %}Receipts{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'receipt-create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>New Receipt
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="mb-0">Receipt List</h5>
+            </div>
+            <div class="col-md-6">
+                <form method="get" class="d-flex">
+                    <input type="text" name="search" class="form-control me-2" placeholder="Search receipts..." value="{{ request.GET.search }}">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if receipts %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Receipt #</th>
+                            <th>Customer</th>
+                            <th>Invoice</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Payment Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for receipt in receipts %}
+                        <tr>
+                            <td><a href="{% url 'receipt-detail' receipt.pk %}" class="text-decoration-none">{{ receipt.receipt_number }}</a></td>
+                            <td>{{ receipt.customer.name }}</td>
+                            <td><a href="{% url 'invoice-detail' receipt.invoice.pk %}" class="text-decoration-none">{{ receipt.invoice.invoice_number }}</a></td>
+                            <td>{{ receipt.amount }} QAR</td>
+                            <td>
+                                <span class="badge bg-info">{{ receipt.get_payment_method_display }}</span>
+                            </td>
+                            <td>{{ receipt.payment_date }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'receipt-detail' receipt.pk %}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'receipt-update' receipt.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'receipt-delete' receipt.pk %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No receipts found</h5>
+                <p class="text-muted">Get started by creating your first receipt.</p>
+                <a href="{% url 'receipt-create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Receipt
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

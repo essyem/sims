@@ -1,0 +1,33 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Expense{% else %}New Expense{% endif %}{% endblock %}
+{% block header %}{% if form.instance.pk %}Edit Expense{% else %}New Expense{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}
+                        <div class="col-md-{% if field.name == 'notes' %}12{% else %}6{% endif %}">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save Expense</button>
+                        <a href="{% url 'finance:expense-list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'sales/base.html' %}
+
+{% block title %}{{ customer.name }} - Customer Details{% endblock %}
+{% block header %}Customer Details{% endblock %}
+
+{% block header_buttons %}
+<div class="btn-group">
+    <a href="{% url 'customer-update' customer.pk %}" class="btn btn-primary">
+        <i class="fas fa-edit me-2"></i>Edit
+    </a>
+    <a href="{% url 'finance:customer-statement-customer' customer.pk %}" class="btn btn-success">
+        <i class="fas fa-file-invoice-dollar me-2"></i>Statement
+    </a>
+    <a href="{% url 'customer-delete' customer.pk %}" class="btn btn-danger">
+        <i class="fas fa-trash me-2"></i>Delete
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Customer Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Name:</strong><br>
+                    {{ customer.name }}
+                </div>
+                <div class="mb-3">
+                    <strong>Phone:</strong><br>
+                    <a href="tel:{{ customer.phone }}">{{ customer.phone }}</a>
+                </div>
+                {% if customer.email %}
+                <div class="mb-3">
+                    <strong>Email:</strong><br>
+                    <a href="mailto:{{ customer.email }}">{{ customer.email }}</a>
+                </div>
+                {% endif %}
+                {% if customer.company %}
+                <div class="mb-3">
+                    <strong>Company:</strong><br>
+                    {{ customer.company }}
+                </div>
+                {% endif %}
+                {% if customer.address %}
+                <div class="mb-3">
+                    <strong>Address:</strong><br>
+                    {{ customer.address|linebreaks }}
+                </div>
+                {% endif %}
+                <div class="mb-0">
+                    <strong>Created:</strong><br>
+                    {{ customer.created_at|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <!-- Recent Invoices -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Invoices</h5>
+                <a href="{% url 'invoice-create' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i>New Invoice
+                </a>
+            </div>
+            <div class="card-body">
+                {% if invoices %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices %}
+                                <tr>
+                                    <td>{{ invoice.invoice_number }}</td>
+                                    <td>{{ invoice.invoice_date }}</td>
+                                    <td>${{ invoice.total_amount }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if invoice.status == 'paid' %}success{% elif invoice.status == 'sent' %}warning{% elif invoice.status == 'overdue' %}danger{% else %}secondary{% endif %}">
+                                            {{ invoice.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'invoice-detail' invoice.pk %}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No invoices found for this customer.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Recent Quotations -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Quotations</h5>
+                <a href="{% url 'quotation-create' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i>New Quotation
+                </a>
+            </div>
+            <div class="card-body">
+                {% if quotations %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Quote #</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quotation in quotations %}
+                                <tr>
+                                    <td>{{ quotation.quotation_number }}</td>
+                                    <td>{{ quotation.quotation_date }}</td>
+                                    <td>${{ quotation.total_amount }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if quotation.status == 'accepted' %}success{% elif quotation.status == 'sent' %}info{% elif quotation.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                            {{ quotation.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'quotation-detail' quotation.pk %}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No quotations found for this customer.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
